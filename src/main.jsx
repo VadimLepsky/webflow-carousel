@@ -3,10 +3,15 @@ import App from "./App";
 import "./index.css";
 import "./styles.css";
 
-const container =
-  document.getElementById("carousel-root") ||
-  document.getElementById("root");
+function mount() {
+  const container = document.getElementById("carousel-root");
+  if (!container) return;
 
-if (container) {
   createRoot(container).render(<App />);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", mount);
+} else {
+  mount();
 }
