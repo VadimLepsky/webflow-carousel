@@ -3,6 +3,10 @@ import App from "./App";
 import "./index.css";
 import "./styles.css";
 
-const root = document.getElementById("root");
+const container =
+  document.getElementById("carousel-root") ||
+  document.getElementById("root");
 
-createRoot(root).render(<App />);
+if (container) {
+  createRoot(container).render(<App />);
+}
