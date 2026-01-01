@@ -8,7 +8,11 @@ import "./util";
 export default function App() {
   return (
     <Canvas
-      style={{ position: "fixed", inset: 0 }}
+        style={{
+    width: "100%",
+    height: "100%",
+    display: "block",
+  }}
       camera={{ position: [0, 0, 100], fov: 15 }}
       gl={{
         toneMapping: THREE.NoToneMapping,
