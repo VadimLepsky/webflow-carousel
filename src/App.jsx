@@ -7,30 +7,34 @@ import "./util";
 
 export default function App() {
   return (
-    <Canvas
-        style={{
+<Canvas
+  style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
     width: "100%",
     height: "100%",
     display: "block",
   }}
-      camera={{ position: [0, 0, 100], fov: 15 }}
-      gl={{
-        toneMapping: THREE.NoToneMapping,
-        outputColorSpace: THREE.SRGBColorSpace,
-      }}
-      onCreated={({ gl }) => {
-        gl.setClearColor("#050505", 1);
-      }}
-    >
-      {/* Лёгкий красный туман */}
-      <fog attach="fog" args={["#d10000", 10, 13]} />
+  camera={{ position: [0, 0, 100], fov: 15 }}
+  gl={{
+    alpha: false,
+    antialias: true,
+    toneMapping: THREE.NoToneMapping,
+    outputColorSpace: THREE.SRGBColorSpace,
+  }}
+  onCreated={({ gl }) => {
+    gl.setClearColor("#050505", 1);
+  }}
+>
+  <fog attach="fog" args={["#d10000", 10, 13]} />
 
-      <Rig rotation={[0, 0, 0.15]}>
-        <Carousel />
-      </Rig>
+  <Rig rotation={[0, 0, 0.15]}>
+    <Carousel />
+  </Rig>
 
-      <Banner position={[0, -0.15, 0]} />
-    </Canvas>
+  <Banner position={[0, -0.15, 0]} />
+</Canvas>
   );
 }
 
