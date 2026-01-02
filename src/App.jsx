@@ -6,8 +6,6 @@ import { easing } from "maath";
 import "./util";
 
 export default function App() {
-  const scrollProgress = useCarouselScrollProgress();
-
   return (
 <Canvas
   style={{
@@ -28,7 +26,7 @@ export default function App() {
 >
   <fog attach="fog" args={["#d10000", 10, 13]} />
 
-<Rig rotation={[0, 0, 0.15]} progress={scrollProgress}>
+  <Rig rotation={[0, 0, 0.15]}>
     <Carousel />
   </Rig>
 
