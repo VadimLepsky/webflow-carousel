@@ -38,6 +38,14 @@ export default function App() {
 /* ================= RIG ================= */
 
 function Rig(props) {
+  const parallaxX = state.pointer.x * 0.3;
+
+easing.damp3(
+  state.camera.position,
+  [parallaxX, 1.5, 10],
+  0.3,
+  delta
+);
   const ref = useRef();
 
 useFrame((state, delta) => {
@@ -47,7 +55,7 @@ useFrame((state, delta) => {
 
   easing.damp3(
     state.camera.position,
-    [-state.pointer.x * 2, state.pointer.y + 1.5, 10],
+    [-state.pointer.x * 0, state.pointer.y + 1.5, 10],
     0.3,
     delta
   );
