@@ -47,11 +47,13 @@ easing.damp3(
   delta
 );
   const ref = useRef();
+  const progress = useCarouselScrollProgress();
 
 useFrame((state, delta) => {
   if (!window.__CAROUSEL_ACTIVE__) return;
 
-  ref.current.rotation.y -= delta * 0.3;
+  ref.current.rotation.y =
+  -progress * Math.PI * 0.65 - 0.25;
 
   easing.damp3(
     state.camera.position,
@@ -64,6 +66,33 @@ useFrame((state, delta) => {
 });
 
   return <group ref={ref} {...props} />;
+}
+
+function useCarouselScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = document.getElementById("carousel-root");
+    if (!el) return;
+
+    const onScroll = () => {
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      const start = vh * 0.95; // ⬅️ ТВОИ 95%
+      const raw = (start - rect.top) / rect.height;
+
+      const clamped = Math.min(1, Math.max(0, raw));
+      setProgress(clamped);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return progress;
 }
 
 /* ================= CAROUSEL ================= */
