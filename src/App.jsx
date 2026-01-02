@@ -40,15 +40,32 @@ export default function App() {
 /* ================= RIG ================= */
 
 function Rig(props) {
+  const parallaxX = state.pointer.x * 0.3;
+
+easing.damp3(
+  state.camera.position,
+  [parallaxX, 1.5, 10],
+  0.3,
+  delta
+);
   const ref = useRef();
+  const progress = useCarouselScrollProgress();
 
-  useFrame(() => {
-    if (!ref.current) return;
+useFrame((state, delta) => {
+  if (!window.__CAROUSEL_ACTIVE__) return;
 
-    // вращение ТОЛЬКО от скролла
-    ref.current.rotation.y =
-      -progress * Math.PI * 0.65 - 0.25;
-  });
+  ref.current.rotation.y =
+  -progress * Math.PI * 0.65 - 0.25;
+
+  easing.damp3(
+    state.camera.position,
+    [-state.pointer.x * 0, state.pointer.y + 1.5, 10],
+    0.3,
+    delta
+  );
+
+  state.camera.lookAt(0, 0, 0);
+});
 
   return <group ref={ref} {...props} />;
 }
