@@ -39,17 +39,16 @@ export default function App() {
 
 /* ================= RIG ================= */
 
-function Rig({ progress, ...props }) {
+function Rig(props) {
   const ref = useRef();
+  const progress = useCarouselScrollProgress();
 
-  useFrame((state, delta) => {
+  useFrame(() => {
     if (!ref.current) return;
 
     // вращение ТОЛЬКО от скролла
-    ref.current.rotation.y -= delta * 0.6 * progress;
-
-    // камера фиксирована
-    state.camera.lookAt(0, 0, 0);
+    ref.current.rotation.y =
+      -progress * Math.PI * 0.65 - 0.25;
   });
 
   return <group ref={ref} {...props} />;
