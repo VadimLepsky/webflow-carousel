@@ -40,18 +40,20 @@ export default function App() {
 function Rig(props) {
   const ref = useRef();
 
-  useFrame((state, delta) => {
-    ref.current.rotation.y = -0.25;
+useFrame((state, delta) => {
+  if (!window.__CAROUSEL_ACTIVE__) return;
 
-    easing.damp3(
-      state.camera.position,
-      [-state.pointer.x * 2, state.pointer.y + 1.5, 10],
-      0.3,
-      delta
-    );
+  ref.current.rotation.y -= delta * 0.3;
 
-    state.camera.lookAt(0, 0, 0);
-  });
+  easing.damp3(
+    state.camera.position,
+    [-state.pointer.x * 2, state.pointer.y + 1.5, 10],
+    0.3,
+    delta
+  );
+
+  state.camera.lookAt(0, 0, 0);
+});
 
   return <group ref={ref} {...props} />;
 }
