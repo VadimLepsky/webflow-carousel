@@ -6,6 +6,8 @@ import { easing } from "maath";
 import "./util";
 
 export default function App() {
+  const scrollProgress = useCarouselScrollProgress();
+
   return (
 <Canvas
   style={{
@@ -26,7 +28,7 @@ export default function App() {
 >
   <fog attach="fog" args={["#d10000", 10, 13]} />
 
-  <Rig rotation={[0, 0, 0.15]}>
+<Rig rotation={[0, 0, 0.15]} progress={scrollProgress}>
     <Carousel />
   </Rig>
 
@@ -37,33 +39,18 @@ export default function App() {
 
 /* ================= RIG ================= */
 
-function Rig(props) {
-  const parallaxX = state.pointer.x * 0.3;
-
-easing.damp3(
-  state.camera.position,
-  [parallaxX, 1.5, 10],
-  0.3,
-  delta
-);
+function Rig({ progress, ...props }) {
   const ref = useRef();
-  const progress = useCarouselScrollProgress();
 
-useFrame((state, delta) => {
-  if (!window.__CAROUSEL_ACTIVE__) return;
+  useFrame((state, delta) => {
+    if (!ref.current) return;
 
-  ref.current.rotation.y =
-  -progress * Math.PI * 0.65 - 0.25;
+    // вращение ТОЛЬКО от скролла
+    ref.current.rotation.y -= delta * 0.6 * progress;
 
-  easing.damp3(
-    state.camera.position,
-    [-state.pointer.x * 0, state.pointer.y + 1.5, 10],
-    0.3,
-    delta
-  );
-
-  state.camera.lookAt(0, 0, 0);
-});
+    // камера фиксирована
+    state.camera.lookAt(0, 0, 0);
+  });
 
   return <group ref={ref} {...props} />;
 }
@@ -178,4 +165,35 @@ function Banner(props) {
       />
     </mesh>
   );
+}
+
+function useCarouselScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = document.getElementById("carousel-root");
+    if (!el) return;
+
+    const onScroll = () => {
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      const elementCenter = rect.top + rect.height / 2;
+      const screenCenter = vh / 2;
+
+      const range = vh * 0.4; // ⬅️ КРУТИТЬ ТОЛЬКО ЭТО
+
+      const raw = 1 - Math.abs(elementCenter - screenCenter) / range;
+      const clamped = Math.min(1, Math.max(0, raw));
+
+      setProgress(clamped);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return progress;
 }
