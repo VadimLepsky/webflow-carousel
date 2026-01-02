@@ -41,7 +41,6 @@ export default function App() {
 
 function Rig(props) {
   const ref = useRef();
-  const progress = useCarouselScrollProgress();
 
   useFrame(() => {
     if (!ref.current) return;
