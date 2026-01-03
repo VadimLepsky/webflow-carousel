@@ -20,6 +20,7 @@ export default function App() {
         width: "100%",
         height: "100%",
         display: "block",
+        pointerEvents: "none" 
       }}
       camera={{ position: [0, 0, 100], fov: 15 }}
       gl={{
@@ -101,6 +102,7 @@ function Card({ url, ...props }) {
         url={url}
         side={THREE.BackSide}
         transparent
+        style={{ pointerEvents: "auto" }} 
         onPointerOver={(e) => {
           e.stopPropagation();
           hover(true);
