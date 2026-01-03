@@ -1,14 +1,16 @@
 console.log("BUILD CHECK", Math.random());
 
 import * as THREE from "three";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Image, useTexture } from "@react-three/drei";
 import { easing } from "maath";
 import "./util";
 
 export default function App() {
+  const progress = usePageScrollProgress();
   return (
+
 <Canvas
   style={{
     width: "100%",
@@ -28,7 +30,7 @@ export default function App() {
 >
   <fog attach="fog" args={["#d10000", 10, 13]} />
 
-  <Rig rotation={[0, 0, 0.15]}>
+  <Rig progress={progress} rotation={[0, 0, 0.15]}>
     <Carousel />
   </Rig>
 
@@ -39,34 +41,20 @@ export default function App() {
 
 /* ================= RIG ================= */
 
-function Rig(props) {
-  const parallaxX = state.pointer.x * 0.3;
-
-easing.damp3(
-  state.camera.position,
-  [parallaxX, 1.5, 10],
-  0.3,
-  delta
-);
+function Rig({ children, progress }) {
   const ref = useRef();
 
-useFrame((state, delta) => {
-  if (!window.__CAROUSEL_ACTIVE__) return;
+  useFrame(() => {
+    if (!ref.current) return;
 
-  ref.current.rotation.y =
-  -progress * Math.PI * 0.65 - 0.25;
+    const ROTATION_RANGE = Math.PI * 0.65;
+    const BASE_OFFSET = -0.25;
 
-  easing.damp3(
-    state.camera.position,
-    [-state.pointer.x * 0, state.pointer.y + 1.5, 10],
-    0.3,
-    delta
-  );
+    ref.current.rotation.y =
+      -progress * ROTATION_RANGE + BASE_OFFSET;
+  });
 
-  state.camera.lookAt(0, 0, 0);
-});
-
-  return <group ref={ref} {...props} />;
+  return <group ref={ref}>{children}</group>;
 }
 
 /* ================= CAROUSEL ================= */
@@ -155,7 +143,7 @@ function Banner(props) {
 }
 
 
-function useCarouselScrollProgress() {
+function usePageScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -166,23 +154,22 @@ function useCarouselScrollProgress() {
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
 
-      // если секция НЕ полностью в экране — стоп
-      if (rect.top < 0 || rect.bottom > vh) {
+      // секция должна быть ПОЛНОСТЬЮ в экране
+      const fullyVisible =
+        rect.top >= 0 && rect.bottom <= vh;
+
+      if (!fullyVisible) {
         setProgress(0);
         return;
       }
 
-      /**
-       * Секция целиком в viewport
-       * progress идёт от 0 → 1
-       * по движению секции ВНУТРИ экрана
-       */
-      const availableScroll = vh - rect.height; // сколько px она может "ездить"
-      const passed = vh - rect.bottom;           // сколько уже проехала
-      const raw = passed / availableScroll;
+      // нормализация движения ВНУТРИ экрана
+      // rect.top идёт от 0 → -(vh - rect.height)
+      const travel = vh - rect.height;
+      const current = -rect.top;
 
-      const clamped = Math.min(1, Math.max(0, raw));
-      setProgress(clamped);
+      const p = Math.min(Math.max(current / travel, 0), 1);
+      setProgress(p);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
