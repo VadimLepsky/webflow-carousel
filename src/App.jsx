@@ -67,33 +67,6 @@ useFrame((state, delta) => {
   return <group ref={ref} {...props} />;
 }
 
-function useCarouselScrollProgress() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const el = document.getElementById("carousel-root");
-    if (!el) return;
-
-    const onScroll = () => {
-      const rect = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-
-      const start = vh * 0.95; // ⬅️ ТВОИ 95%
-      const raw = (start - rect.top) / rect.height;
-
-      const clamped = Math.min(1, Math.max(0, raw));
-      setProgress(clamped);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  return progress;
-}
-
 /* ================= CAROUSEL ================= */
 
 function Carousel({ radius = 1.4, count = 8 }) {
@@ -179,6 +152,7 @@ function Banner(props) {
   );
 }
 
+
 function useCarouselScrollProgress() {
   const [progress, setProgress] = useState(0);
 
@@ -193,12 +167,10 @@ function useCarouselScrollProgress() {
       const elementCenter = rect.top + rect.height / 2;
       const screenCenter = vh / 2;
 
-      const range = vh * 0.4; // ⬅️ КРУТИТЬ ТОЛЬКО ЭТО
-
+      const range = vh * 0.4; // 🔥 ГЛАВНЫЙ РЕГУЛЯТОР
       const raw = 1 - Math.abs(elementCenter - screenCenter) / range;
-      const clamped = Math.min(1, Math.max(0, raw));
 
-      setProgress(clamped);
+      setProgress(Math.min(1, Math.max(0, raw)));
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
