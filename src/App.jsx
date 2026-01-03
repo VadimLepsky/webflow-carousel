@@ -14,6 +14,8 @@ export default function App() {
 
   return (
     <Canvas
+      eventSource={document}
+      eventPrefix="client"
       style={{
         width: "100%",
         height: "100%",
