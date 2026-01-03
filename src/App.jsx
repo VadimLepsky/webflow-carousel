@@ -14,8 +14,7 @@ export default function App() {
 
   return (
     <Canvas
-      eventSource={document}
-      eventPrefix="client"
+      frameloop="always"
       style={{
         width: "100%",
         height: "100%",
