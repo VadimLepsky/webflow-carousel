@@ -168,7 +168,7 @@ function useCarouselScrollProgress() {
       const screenCenter = vh / 2;
 
       // ДОПУСК ВОКРУГ ЦЕНТРА (регулируешь ЭТО)
-      const tolerance = vh * 0.15;
+      const tolerance = vh * 0.05;
 
       const distance = Math.abs(elementCenter - screenCenter);
 
