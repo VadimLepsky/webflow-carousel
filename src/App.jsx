@@ -15,6 +15,7 @@ export default function App() {
   return (
     <Canvas
       frameloop="always"
+      events={null}
       style={{
         width: "100%",
         height: "100%",
