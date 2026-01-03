@@ -47,7 +47,6 @@ easing.damp3(
   delta
 );
   const ref = useRef();
-  const progress = useCarouselScrollProgress();
 
 useFrame((state, delta) => {
   if (!window.__CAROUSEL_ACTIVE__) return;
