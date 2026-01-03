@@ -164,21 +164,23 @@ function useCarouselScrollProgress() {
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
 
-      const elementCenter = rect.top + rect.height / 2;
-      const screenCenter = vh / 2;
-
-      // ДОПУСК ВОКРУГ ЦЕНТРА (регулируешь ЭТО)
-      const tolerance = vh * 0.05;
-
-      const distance = Math.abs(elementCenter - screenCenter);
-
-      if (distance > tolerance) {
+      // если секция НЕ полностью в экране — стоп
+      if (rect.top < 0 || rect.bottom > vh) {
         setProgress(0);
         return;
       }
 
-      const raw = 1 - distance / tolerance;
-      setProgress(raw);
+      /**
+       * Секция целиком в viewport
+       * progress идёт от 0 → 1
+       * по движению секции ВНУТРИ экрана
+       */
+      const availableScroll = vh - rect.height; // сколько px она может "ездить"
+      const passed = vh - rect.bottom;           // сколько уже проехала
+      const raw = passed / availableScroll;
+
+      const clamped = Math.min(1, Math.max(0, raw));
+      setProgress(clamped);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
