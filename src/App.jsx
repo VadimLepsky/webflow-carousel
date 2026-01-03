@@ -1,13 +1,44 @@
 console.log("CHECK", Date.now());
 
 import * as THREE from "three";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Image, useTexture } from "@react-three/drei";
 import { easing } from "maath";
 import "./util";
 
 export default function App() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    function onScroll() {
+      const root = document.getElementById("carousel-root");
+      if (!root) return;
+
+      const rect = root.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      // секция должна быть полностью в экране
+      const fullyVisible =
+        rect.top >= 0 && rect.bottom <= vh;
+
+      if (!fullyVisible) {
+        setProgress(0);
+        return;
+      }
+
+      const travel = vh - rect.height;
+      const current = -rect.top;
+      const p = Math.min(Math.max(current / travel, 0), 1);
+
+      setProgress(p);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
     <Canvas
       style={{ position: "fixed", inset: 0 }}
@@ -23,7 +54,7 @@ export default function App() {
       {/* Лёгкий красный туман */}
       <fog attach="fog" args={["#d10000", 10, 13]} />
 
-      <Rig rotation={[0, 0, 0.15]}>
+      <Rig rotation={progress}>
         <Carousel />
       </Rig>
 
@@ -34,23 +65,20 @@ export default function App() {
 
 /* ================= RIG ================= */
 
-function Rig(props) {
+function Rig({ children, progress }) {
   const ref = useRef();
 
-  useFrame((state, delta) => {
-    ref.current.rotation.y = -0.25;
+  useFrame(() => {
+    if (!ref.current) return;
 
-    easing.damp3(
-      state.camera.position,
-      [-state.pointer.x * 2, state.pointer.y + 1.5, 10],
-      0.3,
-      delta
-    );
+    const ROTATION_RANGE = Math.PI * 0.65;
+    const BASE_OFFSET = -0.25;
 
-    state.camera.lookAt(0, 0, 0);
+    ref.current.rotation.y =
+      -progress * ROTATION_RANGE + BASE_OFFSET;
   });
 
-  return <group ref={ref} {...props} />;
+  return <group ref={ref}>{children}</group>;
 }
 
 /* ================= CAROUSEL ================= */
@@ -136,4 +164,27 @@ function Banner(props) {
       />
     </mesh>
   );
+}
+
+/* ================= EXTERNAL SCROLL ================= */
+
+function useExternalCarouselProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let raf;
+
+    const loop = () => {
+      // значение приходит ИЗ Webflow
+      if (typeof window !== "undefined") {
+        setProgress(window.__CAROUSEL_PROGRESS__ || 0);
+      }
+      raf = requestAnimationFrame(loop);
+    };
+
+    loop();
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return progress;
 }
