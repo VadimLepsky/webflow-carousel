@@ -61,6 +61,10 @@ function Rig({ children, progress }) {
       -progress * ROTATION_RANGE + BASE_OFFSET;
   });
 
+  useFrame(({ camera }) => {
+  camera.lookAt(0, 0, 0);
+});
+
   return <group ref={ref}>{children}</group>;
 }
 
