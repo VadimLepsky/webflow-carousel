@@ -167,10 +167,18 @@ function useCarouselScrollProgress() {
       const elementCenter = rect.top + rect.height / 2;
       const screenCenter = vh / 2;
 
-      const range = vh * 0.4; // 🔥 ГЛАВНЫЙ РЕГУЛЯТОР
-      const raw = 1 - Math.abs(elementCenter - screenCenter) / range;
+      // ДОПУСК ВОКРУГ ЦЕНТРА (регулируешь ЭТО)
+      const tolerance = vh * 0.15;
 
-      setProgress(Math.min(1, Math.max(0, raw)));
+      const distance = Math.abs(elementCenter - screenCenter);
+
+      if (distance > tolerance) {
+        setProgress(0);
+        return;
+      }
+
+      const raw = 1 - distance / tolerance;
+      setProgress(raw);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
