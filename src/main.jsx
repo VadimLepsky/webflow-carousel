@@ -4,7 +4,7 @@ import "./index.css";
 import "./styles.css";
 
 function mount() {
-  const container = document.getElementById("carousel-root");
+  const container = document.getElementById("root");
   if (!container) return;
 
   createRoot(container).render(<App />);
