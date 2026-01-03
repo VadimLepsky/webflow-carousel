@@ -7,35 +7,40 @@ import { Image, useTexture } from "@react-three/drei";
 import { easing } from "maath";
 import "./util";
 
+/* ================= APP ================= */
+
 export default function App() {
   const progress = usePageScrollProgress();
+
   return (
+    <Canvas
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "block",
+      }}
+      camera={{ position: [0, 0, 100], fov: 15 }}
+      gl={{
+        alpha: false,
+        antialias: true,
+        toneMapping: THREE.NoToneMapping,
+        outputColorSpace: THREE.SRGBColorSpace,
+      }}
+      onCreated={({ gl }) => {
+        gl.setClearColor("#050505", 1);
+      }}
+    >
+      {/* ТУМАН */}
+      <fog attach="fog" args={["#d10000", 10, 13]} />
 
-<Canvas
-  style={{
-    width: "100%",
-    height: "100%",
-    display: "block",
-  }}
-  camera={{ position: [0, 0, 100], fov: 15 }}
-  gl={{
-    alpha: false,
-    antialias: true,
-    toneMapping: THREE.NoToneMapping,
-    outputColorSpace: THREE.SRGBColorSpace,
-  }}
-  onCreated={({ gl }) => {
-    gl.setClearColor("#050505", 1);
-  }}
->
-  <fog attach="fog" args={["#d10000", 10, 13]} />
+      {/* КАРУСЕЛЬ */}
+      <Rig progress={progress}>
+        <Carousel />
+      </Rig>
 
-  <Rig progress={progress} rotation={[0, 0, 0.15]}>
-    <Carousel />
-  </Rig>
-
-  <Banner position={[0, -0.15, 0]} />
-</Canvas>
+      {/* ЛЕНТА */}
+      <Banner position={[0, -0.15, 0]} />
+    </Canvas>
   );
 }
 
@@ -88,7 +93,7 @@ function Card({ url, ...props }) {
 
   return (
     <group {...props}>
-      {/* FRONT — картинка (снаружи кольца) */}
+      {/* FRONT — картинка */}
       <Image
         ref={ref}
         url={url}
@@ -103,11 +108,11 @@ function Card({ url, ...props }) {
         <bentPlaneGeometry args={[0.1, 1, 1, 20, 20]} />
       </Image>
 
-      {/* BACK — чёрная заливка (внутри кольца) */}
+      {/* BACK — заливка */}
       <mesh>
         <bentPlaneGeometry args={[0.1, 1, 1, 20, 20]} />
         <meshBasicMaterial
-          color="#fffffff"
+          color="#000000"
           side={THREE.FrontSide}
           toneMapped={false}
         />
@@ -142,6 +147,7 @@ function Banner(props) {
   );
 }
 
+/* ================= SCROLL LOGIC ================= */
 
 function usePageScrollProgress() {
   const [progress, setProgress] = useState(0);
@@ -163,8 +169,6 @@ function usePageScrollProgress() {
         return;
       }
 
-      // нормализация движения ВНУТРИ экрана
-      // rect.top идёт от 0 → -(vh - rect.height)
       const travel = vh - rect.height;
       const current = -rect.top;
 
