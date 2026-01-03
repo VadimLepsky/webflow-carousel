@@ -1,3 +1,5 @@
+console.log("BUILD CHECK", Math.random());
+
 import * as THREE from "three";
 import { useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
