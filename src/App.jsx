@@ -161,14 +161,14 @@ function usePageScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const el = document.getElementById("carousel-root");
+    const el = document.getElementById("root"); // ВАЖНО
     if (!el) return;
 
     const onScroll = () => {
       const rect = el.getBoundingClientRect();
       const vh = window.innerHeight;
 
-      // секция должна быть ПОЛНОСТЬЮ в экране
+      // секция полностью в экране
       const fullyVisible =
         rect.top >= 0 && rect.bottom <= vh;
 
