@@ -8,10 +8,7 @@ import { easing } from "maath";
 import "./util";
 
 export default function App() {
-  const progress = useExternalCarouselProgress();
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
+  const progress = useScrollProgress(); 
 
   return (
     <Canvas
@@ -145,20 +142,40 @@ function Banner(props) {
 
 /* ================= EXTERNAL SCROLL ================= */
 
-function useExternalScrollProgress() {
+function useScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    let raf;
+    const section = document.getElementById("carousel-root");
+    if (!section) return;
 
-    const loop = () => {
-      const p = window.__CAROUSEL_PROGRESS__ ?? 0;
+    const onScroll = () => {
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      // активна ТОЛЬКО когда секция полностью в экране
+      const fullyVisible = rect.top <= 0 && rect.bottom >= vh;
+
+      if (!fullyVisible) {
+        setProgress(0);
+        return;
+      }
+
+      const travel = rect.height - vh;
+      const current = -rect.top;
+      const p = Math.min(Math.max(current / travel, 0), 1);
+
       setProgress(p);
-      raf = requestAnimationFrame(loop);
     };
 
-    loop();
-    return () => cancelAnimationFrame(raf);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   return progress;
