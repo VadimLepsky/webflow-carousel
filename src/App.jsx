@@ -7,25 +7,38 @@ import { Image, useTexture } from "@react-three/drei";
 import { easing } from "maath";
 import "./util";
 
-let EXTERNAL_PROGRESS = 0;
-
 export default function App() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-  function onMessage(e) {
-    if (typeof e.data?.carouselProgress === "number") {
-      EXTERNAL_PROGRESS = Math.min(
-        Math.max(e.data.carouselProgress, 0),
-        1
-      );
+    function onScroll() {
+      const root = document.getElementById("carousel-root");
+      if (!root) return;
+
+      const rect = root.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      // секция должна быть полностью в экране
+      const fullyVisible =
+        rect.top >= 0 && rect.bottom <= vh;
+
+      if (!fullyVisible) {
+        setProgress(0);
+        return;
+      }
+
+      const travel = vh - rect.height;
+      const current = -rect.top;
+      const p = Math.min(Math.max(current / travel, 0), 1);
+
+      setProgress(p);
     }
-  }
 
-  window.addEventListener("message", onMessage);
-  return () => window.removeEventListener("message", onMessage);
-}, []);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
 
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
     <Canvas
       style={{ position: "fixed", inset: 0 }}
@@ -52,17 +65,17 @@ export default function App() {
 
 /* ================= RIG ================= */
 
-function Rig({ children }) {
+function Rig({ children, progress }) {
   const ref = useRef();
 
   useFrame(() => {
     if (!ref.current) return;
 
-    const ROTATION_RANGE = Math.PI * 0.6;
-    const BASE_OFFSET = 0;
+    const ROTATION_RANGE = Math.PI * 0.65;
+    const BASE_OFFSET = -0.25;
 
     ref.current.rotation.y =
-      BASE_OFFSET - EXTERNAL_PROGRESS * ROTATION_RANGE;
+      -progress * ROTATION_RANGE + BASE_OFFSET;
   });
 
   return <group ref={ref}>{children}</group>;
