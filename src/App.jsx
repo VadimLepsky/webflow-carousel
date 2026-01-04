@@ -8,7 +8,7 @@ import { easing } from "maath";
 import "./util";
 
 export default function App() {
-  const progress = useScrollProgress(); 
+  const progress = useExternalCarouselProgress();
 
   return (
     <Canvas
@@ -25,7 +25,7 @@ export default function App() {
       {/* Лёгкий красный туман */}
       <fog attach="fog" args={["#d10000", 10, 13]} />
 
-      <Rig rotation={[0, 0, 0.15]} scrollProgress={scrollProgress}>
+      <Rig rotation={[0, 0, 0.15]} progress={progress}>
         <Carousel />
       </Rig>
 
@@ -36,11 +36,11 @@ export default function App() {
 
 /* ================= RIG ================= */
 
-function Rig(props) {
+function Rig({ progress, ...props }) {
   const ref = useRef();
 
   useFrame((state, delta) => {
-    ref.current.rotation.y = -0.25;
+    ref.current.rotation.y = -0.25 - progress * Math.PI * 0.65;
 
     easing.damp3(
       state.camera.position,
@@ -105,7 +105,7 @@ function Card({ url, ...props }) {
       <mesh>
         <bentPlaneGeometry args={[0.1, 1, 1, 20, 20]} />
         <meshBasicMaterial
-          color="#fffffff"
+          color="#ffffff"
           side={THREE.FrontSide}
           toneMapped={false}
         />
@@ -142,40 +142,19 @@ function Banner(props) {
 
 /* ================= EXTERNAL SCROLL ================= */
 
-function useScrollProgress() {
+function useExternalCarouselProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const section = document.getElementById("carousel-root");
-    if (!section) return;
+    let raf;
 
-    const onScroll = () => {
-      const rect = section.getBoundingClientRect();
-      const vh = window.innerHeight;
-
-      // активна ТОЛЬКО когда секция полностью в экране
-      const fullyVisible = rect.top <= 0 && rect.bottom >= vh;
-
-      if (!fullyVisible) {
-        setProgress(0);
-        return;
-      }
-
-      const travel = rect.height - vh;
-      const current = -rect.top;
-      const p = Math.min(Math.max(current / travel, 0), 1);
-
-      setProgress(p);
+    const loop = () => {
+      setProgress(window.__CAROUSEL_PROGRESS__ ?? 0);
+      raf = requestAnimationFrame(loop);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    onScroll();
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    loop();
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   return progress;
