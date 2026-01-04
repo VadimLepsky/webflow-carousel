@@ -40,7 +40,7 @@ function Rig({ progress, ...props }) {
   const ref = useRef();
 
   useFrame((state, delta) => {
-    ref.current.rotation.y = -0.25 - progress * Math.PI * 0.65;
+    ref.current.rotation.y = -0.25 - progress * Math.PI * 2;
 
     easing.damp3(
       state.camera.position,
