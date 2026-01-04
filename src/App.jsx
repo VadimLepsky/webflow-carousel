@@ -42,14 +42,14 @@ function Rig({ progress, ...props }) {
   useFrame((state, delta) => {
     ref.current.rotation.y = -0.25 - progress * Math.PI * 2;
 
-    easing.damp3(
-      state.camera.position,
-      [-state.pointer.x * 2, state.pointer.y + 1.5, 10],
-      0.3,
-      delta
-    );
+   // easing.damp3(
+   //   state.camera.position,
+   //   [-state.pointer.x * 2, state.pointer.y + 1.5, 10],
+   //   0.3,
+   //   delta
+   // );
 
-    state.camera.lookAt(0, 0, 0);
+   // state.camera.lookAt(0, 0, 0);
   });
 
   return <group ref={ref} {...props} />;
