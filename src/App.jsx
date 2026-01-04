@@ -8,34 +8,10 @@ import { easing } from "maath";
 import "./util";
 
 export default function App() {
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  useEffect(() => {
-    function onScroll() {
-      const root = document.getElementById("carousel-root");
-      if (!root) return;
-
-      const rect = root.getBoundingClientRect();
-      const vh = window.innerHeight;
-
-      // активен ТОЛЬКО когда секция полностью в экране
-      if (rect.top < 0 || rect.bottom > vh) {
-        setScrollProgress(0);
-        return;
-      }
-
-      const travel = vh - rect.height;
-      const current = -rect.top;
-
-      const p = Math.min(Math.max(current / travel, 0), 1);
-      setScrollProgress(p);
-    }
+  const progress = useExternalCarouselProgress();
 
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <Canvas
@@ -169,17 +145,15 @@ function Banner(props) {
 
 /* ================= EXTERNAL SCROLL ================= */
 
-function useExternalCarouselProgress() {
+function useExternalScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let raf;
 
     const loop = () => {
-      // значение приходит ИЗ Webflow
-      if (typeof window !== "undefined") {
-        setProgress(window.__CAROUSEL_PROGRESS__ || 0);
-      }
+      const p = window.__CAROUSEL_PROGRESS__ ?? 0;
+      setProgress(p);
       raf = requestAnimationFrame(loop);
     };
 
