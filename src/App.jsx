@@ -1,13 +1,42 @@
 console.log("CHECK", Date.now());
 
 import * as THREE from "three";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Image, useTexture } from "@react-three/drei";
 import { easing } from "maath";
 import "./util";
 
 export default function App() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    function onScroll() {
+      const root = document.getElementById("carousel-root");
+      if (!root) return;
+
+      const rect = root.getBoundingClientRect();
+      const vh = window.innerHeight;
+
+      // активен ТОЛЬКО когда секция полностью в экране
+      if (rect.top < 0 || rect.bottom > vh) {
+        setScrollProgress(0);
+        return;
+      }
+
+      const travel = vh - rect.height;
+      const current = -rect.top;
+
+      const p = Math.min(Math.max(current / travel, 0), 1);
+      setScrollProgress(p);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <Canvas
       style={{ position: "fixed", inset: 0 }}
@@ -23,7 +52,7 @@ export default function App() {
       {/* Лёгкий красный туман */}
       <fog attach="fog" args={["#d10000", 10, 13]} />
 
-      <Rig rotation={[0, 0, 0.15]}>
+      <Rig rotation={[0, 0, 0.15]} scrollProgress={scrollProgress}>
         <Carousel />
       </Rig>
 
